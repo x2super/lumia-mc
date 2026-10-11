@@ -1,12 +1,12 @@
 {
-  "name": "lumina-minecraft-launcher",
-  "version": "1.0.0",
+  "name": "lumia-minecraft-launcher",
+  "version": "1.1.0",
   "description": "A polished modern Minecraft launcher for Windows",
   "author": "x2super",
-  "homepage": "https://github.com/x2super/Lumina-mc",
+  "homepage": "https://github.com/x2super/lumia-mc",
   "repository": {
     "type": "git",
-    "url": "https://github.com/x2super/Lumina-mc.git"
+    "url": "https://github.com/x2super/lumia-mc.git"
   },
   "main": "src/main.js",
   "scripts": {
@@ -16,8 +16,8 @@
     "dist": "electron-builder --win"
   },
   "build": {
-    "appId": "com.x2super.lumina",
-    "productName": "Lumina Launcher",
+    "appId": "com.x2super.lumia",
+    "productName": "Lumia Launcher",
     "directories": {
       "output": "dist"
     },
@@ -34,7 +34,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "Lumina Launcher"
+      "shortcutName": "Lumia Launcher"
     }
   },
   "dependencies": {

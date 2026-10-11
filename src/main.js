@@ -3,6 +3,8 @@ const { Client, Authenticator } = require('minecraft-launcher-core');
 const { Auth } = require('msmc');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
+const net = require('net');
 const { spawn, spawnSync } = require('child_process');
 
 let mainWindow;
@@ -23,7 +25,7 @@ if (!hasSingleInstanceLock) {
 }
 
 const defaults = {
-  username: 'Player',
+  username: 'Lunia',
   version: '1.21.1',
   gameDir: path.join(app.getPath('appData'), '.minecraft'),
   javaPath: 'java',
@@ -199,7 +201,7 @@ ipcMain.handle('auth:login', async () => {
       width: 520,
       height: 700,
       resizable: true,
-      title: 'เข้าสู่ระบบ Microsoft • Lumina',
+      title: 'เข้าสู่ระบบ Microsoft • Lumia',
       icon: path.join(__dirname, 'assets', 'logo.png'),
       parent: mainWindow,
       modal: true,
@@ -229,6 +231,79 @@ ipcMain.handle('auth:logout', () => {
   return { ok: true };
 });
 
+async function measureRealPing() {
+  return new Promise(resolve => {
+    const start = performance.now();
+    const socket = net.createConnection({ host: '1.1.1.1', port: 53, timeout: 2500 }, () => {
+      const ms = Math.round(performance.now() - start);
+      socket.destroy();
+      resolve(ms);
+    });
+    socket.on('error', () => resolve(null));
+    socket.on('timeout', () => {
+      socket.destroy();
+      resolve(null);
+    });
+  });
+}
+
+ipcMain.handle('system:stats', async () => {
+  const ping = await measureRealPing();
+  const total = os.totalmem();
+  const free = os.freemem();
+  const used = Math.max(0, total - free);
+  const totalGB = (total / (1024 ** 3)).toFixed(1);
+  const usedGB = (used / (1024 ** 3)).toFixed(1);
+  const pct = Math.min(100, Math.round((used / total) * 100));
+
+  const rawCpu = os.cpus()[0]?.model?.trim().replace(/\(R\)|\(TM\)/gi, '').replace(/\s+/g, ' ') || 'CPU';
+  const shortCpu = rawCpu.split('@')[0].trim();
+  const cores = os.cpus().length;
+
+  return {
+    ping,
+    ram: {
+      usedGB,
+      totalGB,
+      percent: pct,
+      text: `${usedGB}/${totalGB} GB (${pct}%)`
+    },
+    cpu: {
+      model: shortCpu,
+      cores,
+      text: `${shortCpu} (${cores} Cores)`
+    }
+  };
+});
+
+function extractVersionParts(v) {
+  const s = String(v || '').trim();
+  let m;
+  if (s.includes('fabric-loader') || s.includes('forge') || s.includes('neoforge')) {
+    m = s.match(/-(1\.\d+(?:\.\d+)*)/);
+  }
+  if (!m) {
+    m = s.match(/^(\d+(?:\.\d+)*)/) || s.match(/(\d+(?:\.\d+)+)/);
+  }
+  if (!m) return [0, 0, 0, 0];
+  const parts = m[1].split('.').map(Number);
+  while (parts.length < 4) parts.push(0);
+  return parts;
+}
+
+function compareMinecraftVersions(a, b) {
+  const pa = extractVersionParts(a);
+  const pb = extractVersionParts(b);
+  for (let i = 0; i < 4; i++) {
+    if (pa[i] !== pb[i]) return pb[i] - pa[i];
+  }
+  const aClean = a === (pa[2] ? `${pa[0]}.${pa[1]}.${pa[2]}` : `${pa[0]}.${pa[1]}`);
+  const bClean = b === (pb[2] ? `${pb[0]}.${pb[1]}.${pb[2]}` : `${pb[0]}.${pb[1]}`);
+  if (aClean && !bClean) return -1;
+  if (!aClean && bClean) return 1;
+  return String(a).localeCompare(String(b));
+}
+
 ipcMain.handle('versions:list', async () => {
   const local = [];
   const versionsDir = path.join(loadSettings().gameDir, 'versions');
@@ -238,15 +313,46 @@ ipcMain.handle('versions:list', async () => {
     }
   } catch {}
 
+  let mainReleases = [];
+  let snapshots = [];
+  let latestRelease = '1.21.1';
+
   try {
     const response = await fetch('https://piston-meta.mojang.com/mc/game/version_manifest_v2.json');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const manifest = await response.json();
-    const releases = manifest.versions.filter(v => v.type === 'release').slice(0, 35).map(v => v.id);
-    return { versions: [...new Set([...local, ...releases])], local, latest: manifest.latest.release };
+    const releases = manifest.versions.filter(v => v.type === 'release').map(v => v.id);
+    snapshots = manifest.versions.filter(v => v.type === 'snapshot').slice(0, 10).map(v => v.id);
+    mainReleases = [...new Set([...local, ...releases])];
+    latestRelease = manifest.latest?.release || releases[0] || '1.21.1';
   } catch {
-    return { versions: local.length ? local : [defaults.version], local, latest: null };
+    const fallbackReleases = [
+      '1.21.4', '1.21.3', '1.21.2', '1.21.1', '1.21',
+      '1.20.6', '1.20.5', '1.20.4', '1.20.3', '1.20.2', '1.20.1', '1.20',
+      '1.19.4', '1.19.3', '1.19.2', '1.19.1', '1.19',
+      '1.18.2', '1.18.1', '1.18',
+      '1.17.1', '1.17',
+      '1.16.5', '1.16.4', '1.16.3', '1.16.2', '1.16.1', '1.16',
+      '1.15.2', '1.15.1', '1.15',
+      '1.14.4', '1.14.3', '1.14.2', '1.14.1', '1.14',
+      '1.13.2', '1.13.1', '1.13',
+      '1.12.2', '1.12.1', '1.12',
+      '1.11.2', '1.11',
+      '1.10.2', '1.10',
+      '1.9.4', '1.9',
+      '1.8.9', '1.8.8', '1.8',
+      '1.7.10', '1.7.2',
+      '1.6.4', '1.5.2', '1.4.7', '1.2.5'
+    ];
+    mainReleases = [...new Set([...local, ...fallbackReleases])];
   }
+
+  local.sort(compareMinecraftVersions);
+  mainReleases.sort(compareMinecraftVersions);
+  snapshots.sort(compareMinecraftVersions);
+
+  const allVersions = [...mainReleases, ...snapshots];
+  return { versions: allVersions, local, latest: latestRelease };
 });
 
 function analyzeGameError(text) {
@@ -423,9 +529,10 @@ ipcMain.handle('game:launch', async (_, raw) => {
         code
       });
     } else {
-      send('game:state', { state: 'idle', message: 'ปิดเกมแล้ว' });
+      send('game:state', { state: 'idle', message: '' });
     }
     mainWindow?.show();
+    mainWindow?.focus();
   });
 
   try {
@@ -459,9 +566,16 @@ ipcMain.handle('game:launch', async (_, raw) => {
     if (!child) throw new Error('ตัวเปิดเกมหยุดทำงานก่อนสร้างโปรเซส Minecraft กรุณาดูรายละเอียดในหน้าบันทึก');
     gameProcess = child;
     send('game:state', { state: 'running', message: 'Minecraft กำลังทำงาน' });
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.hide();
+    }
     return { ok: true };
   } catch (error) {
     gameProcess = null;
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.show();
+      mainWindow.focus();
+    }
     const rawMsg = error?.message || String(error);
     const analyzed = analyzeGameError(rawMsg) || {
       title: 'เปิดเกมไม่สำเร็จ',

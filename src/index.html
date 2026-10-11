@@ -3,164 +3,493 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lumina Launcher</title>
+  <title>Lumia Client</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="ambient ambient-a"></div><div class="ambient ambient-b"></div>
-  <div class="shell">
-    <header class="titlebar">
-      <div class="brand-mini"><img src="assets/logo.png" class="brand-logo" alt="Lumina Logo"><span>LUMINA</span></div>
-      <div class="drag-region"></div>
-      <div class="window-controls">
-        <button id="minimize" aria-label="ย่อหน้าต่าง"><i data-lucide="minus"></i></button>
-        <button id="maximize" aria-label="ขยายหน้าต่าง"><i data-lucide="square"></i></button>
-        <button id="close" class="close" aria-label="ปิดหน้าต่าง"><i data-lucide="x"></i></button>
-      </div>
-    </header>
+  <!-- Background cinematic layer -->
+  <div class="bg-viewport">
+    <video class="bg-video" autoplay loop muted playsinline poster="assets/minecraft-landscape.png">
+      <source src="assets/bg.mp4" type="video/mp4">
+    </video>
+    <div class="bg-scrim"></div>
+  </div>
 
-    <aside class="sidebar">
-      <div class="logo"><img src="assets/logo.png" class="logo-mark" alt="Lumina Logo"><div><b>Lumina</b><small>LAUNCHER</small></div></div>
-      <nav>
-        <button class="nav-item active" data-page="home"><span><i data-lucide="house"></i></span>หน้าหลัก</button>
-        <button class="nav-item" data-page="versions"><span><i data-lucide="blocks"></i></span>เวอร์ชัน</button>
-        <small class="nav-label">ตัวโหลดเกม</small>
-        <button class="nav-item compact" data-page="optifine"><span><i data-lucide="sparkles"></i></span>OptiFine</button>
-        <button class="nav-item compact" data-page="forge"><span><i data-lucide="anvil"></i></span>Forge</button>
-        <button class="nav-item compact" data-page="fabric"><span><i data-lucide="feather"></i></span>Fabric</button>
-        <small class="nav-label">คลังเนื้อหา</small>
-        <button class="nav-item compact" data-page="mods"><span><i data-lucide="puzzle"></i></span>Mods</button>
-        <button class="nav-item compact" data-page="resourcepacks"><span><i data-lucide="package-open"></i></span>Resource Packs</button>
-        <button class="nav-item compact" data-page="shaders"><span><i data-lucide="sun-medium"></i></span>Shaders</button>
-        <small class="nav-label">Launcher</small>
-        <button class="nav-item" data-page="settings"><span><i data-lucide="settings-2"></i></span>ตั้งค่า</button>
-        <button class="nav-item" data-page="logs"><span><i data-lucide="terminal-square"></i></span>บันทึก</button>
+  <div class="app-shell">
+    <!-- Left Navigation Dock -->
+    <aside class="nav-dock">
+      <nav class="dock-menu">
+        <button class="nav-item active" data-page="home" title="หน้าหลัก (Play)">
+          <i data-lucide="house"></i>
+          <span class="dock-tooltip">หน้าหลัก</span>
+        </button>
+        <button class="nav-item" data-page="content" title="คลังเสริม (Mods / Shaders)">
+          <i data-lucide="package"></i>
+          <span class="dock-tooltip">Mods & Packs</span>
+        </button>
+        <button class="nav-item" data-page="settings" title="ตั้งค่า">
+          <i data-lucide="sliders-horizontal"></i>
+          <span class="dock-tooltip">ตั้งค่า</span>
+        </button>
+        <button class="nav-item" data-page="logs" title="บันทึกการทำงาน (Logs)">
+          <i data-lucide="terminal"></i>
+          <span class="dock-tooltip">บันทึก</span>
+        </button>
       </nav>
-      <div class="sidebar-bottom">
-        <div class="profile-card">
-          <div class="avatar" id="avatarLetter">P</div>
-          <div class="profile-copy"><b id="sideUsername">Player</b><small id="accountType"></small></div>
-        </div>
-        <button id="microsoftLogin" class="microsoft-button"><span class="ms-logo"><i></i><i></i><i></i><i></i></span><span><b>เข้าสู่ระบบ Microsoft</b><small>บัญชี Minecraft แท้</small></span></button>
-        <button id="microsoftLogout" class="logout-button" hidden><i data-lucide="log-out"></i>ออกจากระบบ</button>
+
+      <div class="dock-footer">
+        <button class="dock-action-btn" id="dockSoundBtn" title="เสียงเอฟเฟกต์">
+          <i data-lucide="volume-2"></i>
+        </button>
       </div>
     </aside>
 
-    <main>
-      <section class="page active" id="page-home">
-        <div class="hero">
-          <div class="hero-copy">
-            <span class="eyebrow">MINECRAFT JAVA EDITION</span>
-            <h1>โลกใบใหม่<br><em>รอคุณอยู่</em></h1>
-            <p>เปิดเกมได้รวดเร็ว จัดการเวอร์ชันง่าย<br>และเล่นในโหมด Local ได้โดยไม่ต้องล็อกอิน</p>
-          </div>
-          <div class="voxel-scene" aria-hidden="true">
-            <div class="moon"></div><div class="mountain m1"></div><div class="mountain m2"></div>
-            <div class="island"><div class="grass"></div></div>
-            <div class="tree"><i></i><b></b></div>
+    <!-- Main Workspace -->
+    <div class="workspace">
+      <!-- Top Titlebar -->
+      <header class="topbar">
+        <div class="topbar-status">
+          <img src="assets/logo.png" alt="Lumia" class="topbar-logo-img">
+          <span class="status-indicator"></span>
+          <span class="brand-text">LUMIA</span>
+          <span class="version-tag">CLIENT V2.0</span>
+        </div>
+        <div class="drag-region"></div>
+        <div class="topbar-right">
+          <!-- Window Controls -->
+          <div class="window-controls">
+            <button id="minimize" aria-label="ย่อหน้าต่าง" title="ย่อ"><i data-lucide="minus"></i></button>
+            <button id="maximize" aria-label="ขยายหน้าต่าง" title="ขยาย"><i data-lucide="square"></i></button>
+            <button id="close" class="close" aria-label="ปิดหน้าต่าง" title="ปิด"><i data-lucide="x"></i></button>
           </div>
         </div>
+      </header>
 
-        <div class="launch-dock">
-          <div class="simple-launch-title"><img src="assets/logo.png" class="mini-logo" alt="Lumina Logo"><span><b>Lumina Launcher</b><small>MINECRAFT JAVA EDITION</small></span></div>
-          <div class="player-input">
-            <label for="username">ชื่อผู้เล่น</label>
-            <div><span><i data-lucide="user-round"></i></span><input id="username" maxlength="16" value="Player" autocomplete="off"></div>
-          </div>
-          <div class="version-picker">
-            <label for="version">เวอร์ชันเกม</label>
-            <div class="custom-select" data-select="version">
-              <button type="button" class="select-trigger" aria-haspopup="listbox" aria-expanded="false"><span class="select-value">กำลังโหลด…</span><i data-lucide="chevrons-up-down"></i></button>
-              <div class="select-content" role="listbox"></div>
-              <input id="version" type="hidden" value="1.21.1">
+      <!-- Pages Viewport -->
+      <main class="page-container">
+
+        <!-- ==================== PAGE: HOME (HERO) ==================== -->
+        <section class="page active" id="page-home">
+          <div class="hero-content">
+            <div class="hero-top-badge">
+              <span class="badge-icon"><i data-lucide="sparkles"></i></span>
+              <span class="badge-text" id="heroBadgeText">MINECRAFT JAVA EDITION</span>
+            </div>
+
+            <h1 class="hero-title" id="heroTitle">CLASSIC</h1>
+            <p class="hero-desc" id="heroDesc">
+              สัมผัสประสบการณ์โลก Minecraft ที่ราบรื่น ไร้ขีดจำกัด พร้อมระบบจัดสรรทรัพยากรระดับสูงและประสิทธิภาพที่เหนือกว่า
+            </p>
+
+            <!-- Play Controls Dock -->
+            <div class="hero-cta-group">
+              <button class="btn-play" id="playButton">
+                <span class="play-icon-box"><i data-lucide="play"></i></span>
+                <span class="play-label-group">
+                  <span class="play-main-text">PLAY GAME</span>
+                </span>
+              </button>
+              <button class="btn-secondary" id="heroAuthBtn" title="เข้าสู่ระบบด้วยบัญชี Microsoft">
+                <svg viewBox="0 0 21 21" width="14" height="14" fill="none" class="ms-logo-icon">
+                  <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+                  <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+                  <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+                  <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                </svg>
+                <span id="heroAuthText">เข้าสู่ระบบ MICROSOFT</span>
+              </button>
+            </div>
+
+            <!-- Quick Config Bar (Unified Modern Glass Cards) -->
+            <div class="quick-config-bar">
+              <!-- Version Selection Card (Left) -->
+              <div class="config-card custom-select" data-select="version">
+                <button type="button" class="select-trigger select-card-trigger" aria-haspopup="listbox" aria-expanded="false">
+                  <div class="config-card-header">
+                    <span class="config-label"><i data-lucide="box"></i> เวอร์ชัน</span>
+                  </div>
+                  <div class="config-card-body select-value-row">
+                    <span class="select-value">กำลังโหลด…</span>
+                    <span class="select-chevron"><i data-lucide="chevron-down"></i></span>
+                  </div>
+                </button>
+                <div class="select-content" role="listbox"></div>
+                <input id="version" type="hidden" value="1.21.1">
+              </div>
+
+              <!-- Player Input Card (Right) -->
+              <div class="config-card">
+                <div class="config-card-header">
+                  <span class="config-label"><i data-lucide="user"></i> ผู้เล่น</span>
+                </div>
+                <div class="config-card-body">
+                  <input id="username" maxlength="16" value="Lunia" autocomplete="off" placeholder="กรอกชื่อผู้เล่น">
+                </div>
+              </div>
             </div>
           </div>
-          <button class="play-button" id="playButton"><span class="play-icon"><i data-lucide="play"></i></span><span><b>เล่นเกม</b><small id="playSubtext"></small></span></button>
-        </div>
-        <div class="progress-wrap" id="progressWrap"><div class="progress"><i id="progressBar"></i></div><span id="progressText">กำลังเตรียมเกม…</span></div>
-        <div class="info-row">
-          <div class="info-card"><span class="info-icon green"><i data-lucide="shield-check"></i></span><div><b>ไม่ต้องล็อกอิน</b><small>Local profile สำหรับ Singleplayer</small></div></div>
-          <div class="info-card"><span class="info-icon purple"><i data-lucide="layers-3"></i></span><div><b>จัดการเวอร์ชัน</b><small>ดาวน์โหลดไฟล์จาก Mojang</small></div></div>
-          <div class="info-card"><span class="info-icon orange"><i data-lucide="gauge"></i></span><div><b>ปรับแต่งง่าย</b><small>ตั้งค่า RAM และ Java ได้</small></div></div>
-        </div>
-      </section>
 
-      <section class="page panel-page" id="page-versions">
-        <div class="page-heading"><span class="eyebrow">GAME LIBRARY</span><h2>เวอร์ชัน Minecraft</h2><p>เลือกเวอร์ชันที่ต้องการ แล้วกลับไปกดเล่นที่หน้าหลัก</p></div>
-        <div id="versionGrid" class="version-grid"></div>
-      </section>
+          <!-- Hero Bottom Bar Ticker (Real-Time Live Telemetry) -->
+          <footer class="hero-ticker">
+            <div class="ticker-item">
+              <span class="ticker-dot green" id="tickerPingDot"></span>
+              <span>PING: <strong id="tickerPingValue">-- ms</strong></span>
+            </div>
+            <div class="ticker-item">
+              <i data-lucide="cpu" class="ticker-icon"></i>
+              <span>RAM: <strong id="tickerRamValue">-- GB</strong></span>
+            </div>
+            <div class="ticker-item">
+              <i data-lucide="monitor" class="ticker-icon"></i>
+              <span>CPU: <strong id="tickerCpuValue">--</strong></span>
+            </div>
+          </footer>
+        </section>
 
-      <section class="page panel-page" id="page-loader">
-        <div class="page-heading"><span class="eyebrow">MOD LOADER</span><h2 id="loaderTitle">Forge</h2><p id="loaderDescription">ติดตั้งตัวโหลดเกมจากไฟล์ Installer อย่างปลอดภัย</p></div>
-        <div class="loader-hero">
-          <div class="loader-mark" id="loaderMark"><i data-lucide="anvil"></i></div>
-          <div class="loader-copy"><span class="loader-badge">JAVA INSTALLER</span><h3 id="loaderHeading">ติดตั้ง Forge</h3><p id="loaderHelp">ดาวน์โหลด Installer จากเว็บไซต์ทางการ จากนั้นเลือกไฟล์ .jar ที่ดาวน์โหลดไว้</p></div>
-          <button class="primary-action" id="runInstaller"><i data-lucide="package-plus"></i><span>เลือกไฟล์ Installer</span></button>
-        </div>
-        <div class="loader-steps"><div><b>01</b><span><strong>ดาวน์โหลด</strong><small>รับไฟล์จากเว็บไซต์ทางการ</small></span></div><i data-lucide="arrow-right"></i><div><b>02</b><span><strong>เลือกไฟล์</strong><small>รองรับ Installer นามสกุล .jar</small></span></div><i data-lucide="arrow-right"></i><div><b>03</b><span><strong>ติดตั้ง</strong><small>เลือก Install client ในหน้าต่าง Installer</small></span></div></div>
-        <div class="notice-card"><i data-lucide="shield-check"></i><div><b>Launcher จะไม่ดาวน์โหลดไฟล์จากแหล่งที่ไม่รู้จัก</b><p>คุณเป็นผู้เลือกไฟล์ Installer เอง และไฟล์จะเปิดด้วย Java ที่กำหนดไว้ในหน้าตั้งค่า</p></div></div>
-      </section>
-
-      <section class="page panel-page" id="page-content">
-        <div class="content-heading-row"><div class="page-heading"><span class="eyebrow" id="contentEyebrow">CONTENT LIBRARY</span><h2 id="contentTitle">Mods</h2><p id="contentDescription">จัดการไฟล์เสริมภายในโฟลเดอร์เกม</p></div><div class="content-actions"><button id="openContentFolder" class="secondary-action"><i data-lucide="folder-open"></i>เปิดโฟลเดอร์</button><button id="importContent" class="primary-action"><i data-lucide="plus"></i>นำเข้าไฟล์</button></div></div>
-        <div class="content-summary"><div><span class="summary-icon"><i data-lucide="files"></i></span><span><b id="contentCount">0 ไฟล์</b><small>ในคลังนี้</small></span></div><div><span class="summary-icon"><i data-lucide="hard-drive"></i></span><span><b id="contentSize">0 MB</b><small>พื้นที่จัดเก็บ</small></span></div></div>
-        <div id="contentList" class="content-list"></div>
-        <div id="contentEmpty" class="empty-state"><span><i data-lucide="package-open"></i></span><b>ยังไม่มีไฟล์ในคลังนี้</b><p>กด “นำเข้าไฟล์” หรือวางไฟล์ไว้ในโฟลเดอร์ Minecraft</p></div>
-      </section>
-
-      <section class="page panel-page" id="page-settings">
-        <div class="page-heading"><span class="eyebrow">PREFERENCES</span><h2>ตั้งค่า Launcher</h2><p>ปรับประสิทธิภาพและตำแหน่งไฟล์เกม</p></div>
-        <div class="settings-card">
-          <div class="field full"><label>โฟลเดอร์เกม</label><div class="path-input"><input id="gameDir"><button id="chooseGameDir">เลือก</button><button id="openGameDir">เปิด</button></div></div>
-          <div class="field full"><label>Java executable</label><div class="path-input"><input id="javaPath"><button id="chooseJava">เลือก</button></div></div>
-          <div class="field"><label>RAM ต่ำสุด</label><div class="custom-select" data-select="minMemory"><button type="button" class="select-trigger"><span class="select-value">2 GB</span><i data-lucide="chevron-down"></i></button><div class="select-content" role="listbox"></div><input id="minMemory" type="hidden" value="2G"></div></div>
-          <div class="field"><label>RAM สูงสุด</label><div class="custom-select" data-select="maxMemory"><button type="button" class="select-trigger"><span class="select-value">4 GB</span><i data-lucide="chevron-down"></i></button><div class="select-content" role="listbox"></div><input id="maxMemory" type="hidden" value="4G"></div></div>
-          <div class="field"><label>ความกว้าง</label><input id="gameWidth" type="number" min="800" value="1280"></div>
-          <div class="field"><label>ความสูง</label><input id="gameHeight" type="number" min="600" value="720"></div>
-          <label class="toggle-row"><span><b>เต็มหน้าจอ</b><small>เปิดเกมแบบ Fullscreen</small></span><input id="fullscreen" type="checkbox"><i></i></label>
-          <button id="saveSettings" class="save-button">บันทึกการตั้งค่า</button>
-        </div>
-      </section>
-
-      <section class="page panel-page" id="page-logs">
-        <div class="page-heading"><span class="eyebrow">LAUNCHER CONSOLE</span><h2>บันทึกการทำงาน</h2><p>ใช้ตรวจสอบสถานะดาวน์โหลดและข้อผิดพลาด</p></div>
-        <div class="log-toolbar"><span id="logStatus"><i></i>พร้อมใช้งาน</span><button id="clearLogs">ล้างบันทึก</button></div>
-        <pre id="logs">[Lumina] Launcher พร้อมใช้งาน\n</pre>
-      </section>
-    </main>
-    <div class="toast" id="toast"></div>
-
-    <!-- Error Alert Modal -->
-    <div class="modal-backdrop" id="errorModal" hidden>
-      <div class="modal-dialog">
-        <div class="modal-header">
-          <div class="modal-icon-badge">
-            <i data-lucide="alert-triangle"></i>
-          </div>
-          <div class="modal-header-text">
-            <h3 id="modalTitle">ข้อผิดพลาดในการเปิดเกม</h3>
-            <small id="modalSubtitle">ระบบตรวจพบปัญหาในการรันเกม</small>
-          </div>
-          <button type="button" class="modal-x" id="modalXBtn" aria-label="ปิด"><i data-lucide="x"></i></button>
-        </div>
-        <div class="modal-body">
-          <p id="modalMessage">ข้อความแจ้งเตือน</p>
-          <div class="modal-suggestion" id="modalSuggestion" hidden>
-            <div class="modal-sugg-icon"><i data-lucide="sparkles"></i></div>
-            <div class="modal-sugg-content">
-              <b>คำแนะนำวิธีแก้ไข</b>
-              <span id="modalSuggestionText"></span>
+        <!-- ==================== PAGE: VERSIONS & MODES ==================== -->
+        <section class="page panel-page" id="page-versions">
+          <div class="panel-header">
+            <div class="header-titles">
+              <span class="panel-eyebrow">GAME MODES & SERVERS</span>
+              <h2>โหมดเกมและเวอร์ชัน</h2>
+              <p>เลือกโหมดที่ต้องการเล่น หรือเลือกเวอร์ชัน Minecraft ด้านล่าง</p>
             </div>
           </div>
+
+          <!-- Featured Game Mode Cards Grid (Misty Reference Style) -->
+          <div class="modes-grid">
+            <div class="mode-card active" data-mode="classic" data-version-target="1.21.1">
+              <div class="mode-card-header">
+                <div class="mode-badge-icon purple"><i data-lucide="swords"></i></div>
+                <div class="mode-status-tag"><span class="pulse-dot"></span> 1,240 ONLINE</div>
+              </div>
+              <div class="mode-card-body">
+                <h3>CLASSIC</h3>
+                <p>โหมดเอาชีวิตรอดมาตรฐาน Minecraft Vanilla ดั้งเดิม พร้อมความเสถียรสูงสุด</p>
+              </div>
+              <div class="mode-card-footer">
+                <span class="mode-tag">RELEASE 1.21.1</span>
+                <button class="mode-action-btn" title="เลือกโหมดนี้"><i data-lucide="arrow-right"></i></button>
+              </div>
+            </div>
+
+            <div class="mode-card" data-mode="magic" data-version-target="1.20.1">
+              <div class="mode-card-header">
+                <div class="mode-badge-icon violet"><i data-lucide="wand-2"></i></div>
+                <div class="mode-status-tag"><span class="pulse-dot"></span> 850 ONLINE</div>
+              </div>
+              <div class="mode-card-body">
+                <h3>MAGIC</h3>
+                <p>การผจญภัยเวทมนตร์และดันเจี้ยนลึกลับ สัมผัสคาถาและการต่อสู้แฟนตาซี</p>
+              </div>
+              <div class="mode-card-footer">
+                <span class="mode-tag">MODPACK 1.20.1</span>
+                <button class="mode-action-btn" title="เลือกโหมดนี้"><i data-lucide="arrow-right"></i></button>
+              </div>
+            </div>
+
+            <div class="mode-card" data-mode="hardcore" data-version-target="1.21">
+              <div class="mode-card-header">
+                <div class="mode-badge-icon red"><i data-lucide="skull"></i></div>
+                <div class="mode-status-tag"><span class="pulse-dot"></span> 420 ONLINE</div>
+              </div>
+              <div class="mode-card-body">
+                <h3>HARDCORE</h3>
+                <p>ความท้าทายขั้นสุด ชีวิตเดียว หากตายโลกจะถูกลบ เหมาะสำหรับผู้เล่นตัวจริง</p>
+              </div>
+              <div class="mode-card-footer">
+                <span class="mode-tag">RELEASE 1.21</span>
+                <button class="mode-action-btn" title="เลือกโหมดนี้"><i data-lucide="arrow-right"></i></button>
+              </div>
+            </div>
+
+            <div class="mode-card" data-mode="fabric" data-version-target="1.21.1">
+              <div class="mode-card-header">
+                <div class="mode-badge-icon cyan"><i data-lucide="feather"></i></div>
+                <div class="mode-status-tag"><span class="pulse-dot"></span> HIGH FPS</div>
+              </div>
+              <div class="mode-card-body">
+                <h3>FABRIC</h3>
+                <p>ความเร็วสูง ม็อดเพิ่ม FPS เช่น Sodium, Lithium ให้ภาพลื่นไหล 144Hz+</p>
+              </div>
+              <div class="mode-card-footer">
+                <span class="mode-tag">FABRIC LOADER</span>
+                <button class="mode-action-btn" title="เลือกโหมดนี้"><i data-lucide="arrow-right"></i></button>
+              </div>
+            </div>
+
+            <div class="mode-card" data-mode="forge" data-version-target="1.20.1">
+              <div class="mode-card-header">
+                <div class="mode-badge-icon orange"><i data-lucide="anvil"></i></div>
+                <div class="mode-status-tag"><span class="pulse-dot"></span> TECH MODS</div>
+              </div>
+              <div class="mode-card-body">
+                <h3>FORGE</h3>
+                <p>รองรับม็อดเทคโนโลยี อาวุธ เครื่องจักร และสิ่งก่อสร้างสุดอลังการ</p>
+              </div>
+              <div class="mode-card-footer">
+                <span class="mode-tag">FORGE LOADER</span>
+                <button class="mode-action-btn" title="เลือกโหมดนี้"><i data-lucide="arrow-right"></i></button>
+              </div>
+            </div>
+
+            <div class="mode-card" data-mode="minigames" data-version-target="1.8.9">
+              <div class="mode-card-header">
+                <div class="mode-badge-icon emerald"><i data-lucide="gamepad-2"></i></div>
+                <div class="mode-status-tag"><span class="pulse-dot"></span> PVP 1.8.9</div>
+              </div>
+              <div class="mode-card-body">
+                <h3>MINIGAMES</h3>
+                <p>เวอร์ชันยอดนิยมสำหรับการเล่น PVP, Bedwars, Skywars ด้วยระบบคลิก 1.8</p>
+              </div>
+              <div class="mode-card-footer">
+                <span class="mode-tag">PVP 1.8.9</span>
+                <button class="mode-action-btn" title="เลือกโหมดนี้"><i data-lucide="arrow-right"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <div class="sub-section-title">
+            <span>เวอร์ชันทั้งหมด (Official & Local)</span>
+          </div>
+          <div id="versionGrid" class="version-grid"></div>
+        </section>
+
+        <!-- ==================== PAGE: MOD LOADERS ==================== -->
+        <section class="page panel-page" id="page-loader">
+          <div class="panel-header">
+            <div class="header-titles">
+              <span class="panel-eyebrow">MOD LOADERS</span>
+              <h2 id="loaderTitle">Forge</h2>
+              <p id="loaderDescription">ติดตั้งตัวโหลดเกมจากไฟล์ Installer อย่างปลอดภัย</p>
+            </div>
+            <!-- Sub-tab switchers -->
+            <div class="panel-subtabs">
+              <button class="subtab-btn active" data-loader="forge"><i data-lucide="anvil"></i> Forge</button>
+              <button class="subtab-btn" data-loader="fabric"><i data-lucide="feather"></i> Fabric</button>
+              <button class="subtab-btn" data-loader="optifine"><i data-lucide="sparkles"></i> OptiFine</button>
+            </div>
+          </div>
+
+          <div class="loader-glass-card">
+            <div class="loader-card-left">
+              <div class="loader-mark-glow" id="loaderMark"><i data-lucide="anvil"></i></div>
+            </div>
+            <div class="loader-card-content">
+              <span class="loader-badge">JAVA INSTALLER</span>
+              <h3 id="loaderHeading">ติดตั้ง Forge</h3>
+              <p id="loaderHelp">ดาวน์โหลด Installer จากเว็บไซต์ทางการ จากนั้นเลือกไฟล์ .jar ที่ดาวน์โหลดไว้เพื่อเริ่มติดตั้ง</p>
+              <button class="btn-primary-purple" id="runInstaller">
+                <i data-lucide="package-plus"></i>
+                <span>เลือกไฟล์ Installer (.jar)</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="steps-flow">
+            <div class="step-card">
+              <span class="step-num">01</span>
+              <div><strong>ดาวน์โหลด</strong><small>รับไฟล์จากเว็บไซต์ทางการของผู้พัฒนา</small></div>
+            </div>
+            <div class="step-arrow"><i data-lucide="arrow-right"></i></div>
+            <div class="step-card">
+              <span class="step-num">02</span>
+              <div><strong>เลือกไฟล์</strong><small>คลิกปุ่มด้านบนและเลือกไฟล์ .jar</small></div>
+            </div>
+            <div class="step-arrow"><i data-lucide="arrow-right"></i></div>
+            <div class="step-card">
+              <span class="step-num">03</span>
+              <div><strong>ติดตั้ง</strong><small>เลือก Install Client ในหน้าต่างตัวติดตั้ง</small></div>
+            </div>
+          </div>
+
+          <div class="security-banner">
+            <i data-lucide="shield-check"></i>
+            <div>
+              <b>ความปลอดภัยระดับสูงสุด</b>
+              <p>Lumia จะไม่ดาวน์โหลดไฟล์แปลกปลอมจากภายนอก คุณสามารถตรวจสอบและเลือกไฟล์ตัวติดตั้งเองได้ 100%</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== PAGE: CONTENT (MODS / SHADERS / PACKS) ==================== -->
+        <section class="page panel-page" id="page-content">
+          <div class="panel-header">
+            <div class="header-titles">
+              <span class="panel-eyebrow" id="contentEyebrow">CONTENT MANAGER</span>
+              <h2 id="contentTitle">Mods</h2>
+              <p id="contentDescription">จัดการม็อดและไฟล์เสริมภายในโฟลเดอร์เกม</p>
+            </div>
+            <div class="panel-subtabs">
+              <button class="subtab-btn active" data-content="mods"><i data-lucide="puzzle"></i> Mods</button>
+              <button class="subtab-btn" data-content="resourcepacks"><i data-lucide="package-open"></i> Resource Packs</button>
+              <button class="subtab-btn" data-content="shaders"><i data-lucide="sun-medium"></i> Shaders</button>
+            </div>
+          </div>
+
+          <div class="content-action-bar">
+            <div class="content-stats">
+              <div class="stat-pill"><i data-lucide="files"></i> <span id="contentCount">0 ไฟล์</span></div>
+              <div class="stat-pill"><i data-lucide="hard-drive"></i> <span id="contentSize">0 MB</span></div>
+            </div>
+            <div class="action-buttons">
+              <button id="openContentFolder" class="btn-glass"><i data-lucide="folder-open"></i> เปิดโฟลเดอร์</button>
+              <button id="importContent" class="btn-primary-purple"><i data-lucide="plus"></i> นำเข้าไฟล์</button>
+            </div>
+          </div>
+
+          <div id="contentList" class="content-list-grid"></div>
+          <div id="contentEmpty" class="empty-state-card" hidden>
+            <div class="empty-icon"><i data-lucide="package-open"></i></div>
+            <b>ยังไม่มีไฟล์ในโฟลเดอร์นี้</b>
+            <p>กดปุ่ม “นำเข้าไฟล์” หรือเปิดโฟลเดอร์เพื่อวางไฟล์ .jar หรือ .zip ได้ทันที</p>
+          </div>
+        </section>
+
+        <!-- ==================== PAGE: SETTINGS ==================== -->
+        <section class="page panel-page" id="page-settings">
+          <div class="panel-header">
+            <div class="header-titles">
+              <span class="panel-eyebrow">PREFERENCES</span>
+              <h2>ตั้งค่าไคลเอนต์</h2>
+              <p>ปรับแต่งความจำ RAM, โฟลเดอร์เกม, และค่าความละเอียดหน้าจอ</p>
+            </div>
+            <button id="saveSettings" class="btn-primary-purple"><i data-lucide="check"></i> บันทึกการตั้งค่า</button>
+          </div>
+
+          <div class="settings-grid">
+            <!-- Directory Settings -->
+            <div class="settings-box full-width">
+              <h3><i data-lucide="folder"></i> ตำแหน่งโฟลเดอร์เกม</h3>
+              <div class="setting-row">
+                <div class="path-input-group">
+                  <input id="gameDir" placeholder="โฟลเดอร์ Minecraft (.minecraft)">
+                  <button id="chooseGameDir" class="btn-glass">เลือก</button>
+                  <button id="openGameDir" class="btn-glass">เปิดโฟลเดอร์</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-box full-width">
+              <h3><i data-lucide="coffee"></i> Java Executable</h3>
+              <div class="setting-row">
+                <div class="path-input-group">
+                  <input id="javaPath" placeholder="javaw.exe (เว้นว่างไว้หากต้องการใช้ Java ของระบบ)">
+                  <button id="chooseJava" class="btn-glass">เลือกไฟล์</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Memory Allocation -->
+            <div class="settings-box">
+              <h3><i data-lucide="cpu"></i> RAM ต่ำสุด (Min Memory)</h3>
+              <div class="custom-select" data-select="minMemory">
+                <button type="button" class="select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="select-value">2 GB</span>
+                  <i data-lucide="chevron-down"></i>
+                </button>
+                <div class="select-content" role="listbox"></div>
+                <input id="minMemory" type="hidden" value="2G">
+              </div>
+            </div>
+
+            <div class="settings-box">
+              <h3><i data-lucide="zap"></i> RAM สูงสุด (Max Memory)</h3>
+              <div class="custom-select" data-select="maxMemory">
+                <button type="button" class="select-trigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="select-value">4 GB</span>
+                  <i data-lucide="chevron-down"></i>
+                </button>
+                <div class="select-content" role="listbox"></div>
+                <input id="maxMemory" type="hidden" value="4G">
+              </div>
+            </div>
+
+            <!-- Display Settings -->
+            <div class="settings-box">
+              <h3><i data-lucide="monitor"></i> ความกว้าง (Width)</h3>
+              <input id="gameWidth" type="number" min="800" value="1280" class="std-input">
+            </div>
+
+            <div class="settings-box">
+              <h3><i data-lucide="monitor"></i> ความสูง (Height)</h3>
+              <input id="gameHeight" type="number" min="600" value="720" class="std-input">
+            </div>
+
+            <!-- Fullscreen switch -->
+            <div class="settings-box full-width">
+              <label class="toggle-card">
+                <div class="toggle-copy">
+                  <strong>เปิดเกมแบบเต็มหน้าจอ (Fullscreen)</strong>
+                  <small>รันเกมด้วยโหมดเต็มหน้าจอทันทีเมื่อเริ่มเกม</small>
+                </div>
+                <input id="fullscreen" type="checkbox" class="toggle-input">
+                <div class="toggle-switch"></div>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== PAGE: LOGS ==================== -->
+        <section class="page panel-page" id="page-logs">
+          <div class="panel-header">
+            <div class="header-titles">
+              <span class="panel-eyebrow">CONSOLE OUTPUT</span>
+              <h2>บันทึกการทำงาน (Logs)</h2>
+              <p>ตรวจสอบกระบวนการดาวน์โหลด การคอมไพล์ และสถานะเกม</p>
+            </div>
+            <div class="log-controls">
+              <span id="logStatus" class="log-status-pill"><i></i> พร้อมใช้งาน</span>
+              <button id="clearLogs" class="btn-glass"><i data-lucide="trash-2"></i> ล้างบันทึก</button>
+            </div>
+          </div>
+
+          <div class="terminal-container">
+            <pre id="logs">[Lumia Client] ระบบพร้อมใช้งาน\n</pre>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Error Alert Modal -->
+  <div class="modal-backdrop" id="errorModal" hidden>
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-icon-badge">
+          <i data-lucide="alert-triangle"></i>
         </div>
-        <div class="modal-actions">
-          <button type="button" class="modal-btn secondary" id="modalActionBtn" hidden>ไปที่หน้าตั้งค่า</button>
-          <button type="button" class="modal-btn secondary" id="modalLogsBtn">ดูบันทึก</button>
-          <button type="button" class="modal-btn primary" id="modalCloseBtn">เข้าใจแล้ว</button>
+        <div class="modal-header-text">
+          <h3 id="modalTitle">ข้อผิดพลาดในการเปิดเกม</h3>
+          <small id="modalSubtitle">ระบบตรวจพบปัญหาในการรันเกม</small>
         </div>
+        <button type="button" class="modal-x" id="modalXBtn" aria-label="ปิด"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <p id="modalMessage">ข้อความแจ้งเตือน</p>
+        <div class="modal-suggestion" id="modalSuggestion" hidden>
+          <div class="modal-sugg-icon"><i data-lucide="sparkles"></i></div>
+          <div class="modal-sugg-content">
+            <b>คำแนะนำวิธีแก้ไข</b>
+            <span id="modalSuggestionText"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn secondary" id="modalActionBtn" hidden>ไปที่หน้าตั้งค่า</button>
+        <button type="button" class="modal-btn secondary" id="modalLogsBtn">ดูบันทึก</button>
+        <button type="button" class="modal-btn primary" id="modalCloseBtn">เข้าใจแล้ว</button>
       </div>
     </div>
   </div>
+
   <script src="vendor/lucide.min.js"></script>
   <script src="vendor/motion.js"></script>
   <script src="renderer.js"></script>

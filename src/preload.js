@@ -22,5 +22,6 @@ contextBridge.exposeInMainWorld('launcher', {
   onState: callback => ipcRenderer.on('game:state', (_, value) => callback(value)),
   onProgress: callback => ipcRenderer.on('game:progress', (_, value) => callback(value)),
   onLog: callback => ipcRenderer.on('game:log', (_, value) => callback(value)),
-  onAuthState: callback => ipcRenderer.on('auth:state', (_, value) => callback(value))
+  onAuthState: callback => ipcRenderer.on('auth:state', (_, value) => callback(value)),
+  getSystemStats: () => ipcRenderer.invoke('system:stats')
 });
